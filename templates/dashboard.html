@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Women Safety Dashboard</title>
+
+<style>
+body {
+    text-align: center;
+    font-family: Arial;
+    background: #f2f2f2;
+}
+
+h1 {
+    color: red;
+}
+
+button {
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.sos {
+    background: red;
+    color: white;
+}
+
+.help {
+    background: green;
+    color: white;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🚨 Women Safety System</h1>
+
+<button class="sos" onclick="sendAlert()">SOS</button>
+<br>
+
+<button class="help" onclick="findPolice()">🚔 Nearby Police</button>
+<button class="help" onclick="findHospital()">🏥 Nearby Hospital</button>
+
+<p id="status"></p>
+
+<script>
+
+// SOS function
+function sendAlert() {
+
+if (navigator.geolocation) {
+
+navigator.geolocation.getCurrentPosition(showPosition, showError, {
+enableHighAccuracy: true,
+timeout: 10000,
+maximumAge: 0
+});
+
+} else {
+document.getElementById("status").innerHTML = "Geolocation not supported";
+}
+
+}
+
+// Show location & send to backend
+function showPosition(position) {
+
+let lat = position.coords.latitude;
+let lon = position.coords.longitude;
+
+document.getElementById("status").innerHTML =
+"Location: " + lat + ", " + lon;
+
+fetch('/send_alert', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ latitude: lat, longitude: lon })
+})
+.then(response => response.json())
+.then(data => alert(data.status));
+
+}
+
+// Error handling
+function showError(error) {
+
+switch(error.code) {
+case error.PERMISSION_DENIED:
+document.getElementById("status").innerHTML="User denied location";
+break;
+
+case error.POSITION_UNAVAILABLE:
+document.getElementById("status").innerHTML="Location unavailable";
+break;
+
+case error.TIMEOUT:
+document.getElementById("status").innerHTML="Location request timeout";
+break;
+
+default:
+document.getElementById("status").innerHTML="Unknown error";
+}
+
+}
+
+// Nearby police
+function findPolice() {
+window.open("https://www.google.com/maps/search/police+station+near+me");
+}
+
+// Nearby hospital
+function findHospital() {
+window.open("https://www.google.com/maps/search/hospital+near+me");
+}
+
+</script>
+
+</body>
+</html>
